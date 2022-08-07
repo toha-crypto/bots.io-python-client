@@ -156,6 +156,20 @@ class ApiClient(object):
         # request url
         url = self.configuration.host + resource_path
 
+        # add signing
+        # https://github.com/iconomi-ag/iconomi-python/blob/master/main_test.py
+        jsonPayload = ''
+        if method == 'POST':
+            jsonPayload = json.dumps(body)
+
+        timestamp = str(int(time.time() * 1000.0))
+        req = {
+            'ICN-API-KEY': self.configuration.api_key.get('ICN-API-KEY'),
+            'ICN-SIGN': self.generate_signature(jsonPayload, method, resource_path, timestamp),
+            'ICN-TIMESTAMP': timestamp
+        }
+        header_params.update(req)
+
         # perform request and return response
         response_data = self.request(
             method, url, query_params=query_params, headers=header_params,
@@ -324,20 +338,6 @@ class ApiClient(object):
             If parameter async_req is False or missing,
             then the method will return the response directly.
         """
-        
-        # add signing
-        # https://github.com/iconomi-ag/iconomi-python/blob/master/main_test.py
-        jsonPayload = ''
-        if method == 'POST':
-            jsonPayload = json.dumps(body)
-
-        timestamp = str(int(time.time() * 1000.0))
-        req = {
-            'ICN-API-KEY': self.configuration.api_key.get('ICN-API-KEY'),
-            'ICN-SIGN': self.generate_signature(jsonPayload, method, resource_path, timestamp),
-            'ICN-TIMESTAMP': timestamp
-        }
-        header_params.update(req)
         
         if not async_req:
             return self.__call_api(resource_path, method,
