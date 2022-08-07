@@ -170,7 +170,6 @@ class ApiClient(object):
             'ICN-TIMESTAMP': timestamp
         }
         header_params.update(req)
-        print(header_params, "***")
         
         # perform request and return response
         response_data = self.request(
