@@ -99,7 +99,7 @@ class ApiClient(object):
             request_path = request_path[0:query]
     
         data = ''.join([timestamp, request_type.upper(), request_path, payload]).encode()
-        signed_data = hmac.new(self.API_SECRET.encode(), data, hashlib.sha512)
+        signed_data = hmac.new(self.configuration.get("ICN-API-SECRET").encode(), data, hashlib.sha512)
         return base64.b64encode(signed_data.digest())
 
     def __call_api(
@@ -333,7 +333,7 @@ class ApiClient(object):
 
         timestamp = str(int(time.time() * 1000.0))
         req = {
-            'ICN-API-KEY': self.configuration.auth_settings().get('ICN-API-KEY'),
+            'ICN-API-KEY': self.configuration.api_key.get('ICN-API-KEY'),
             'ICN-SIGN': self.generate_signature(jsonPayload, method, resource_path, timestamp),
             'ICN-TIMESTAMP': timestamp
         }
